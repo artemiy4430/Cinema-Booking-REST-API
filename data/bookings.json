@@ -1,0 +1,52 @@
+[
+  {
+    "id": 1,
+    "customerId": 1,
+    "screeningId": 1,
+    "seats": ["A1", "A2", "A3"],
+    "totalPrice": 900.00,
+    "createdAt": "2026-11-10T12:30:00",
+    "cancelledAt": null,
+    "status": "ACTIVE"
+  },
+  {
+    "id": 2,
+    "customerId": 2,
+    "screeningId": 1,
+    "seats": ["C5", "C6"],
+    "totalPrice": 600.00,
+    "createdAt": "2026-11-11T15:45:00",
+    "cancelledAt": null,
+    "status": "ACTIVE"
+  },
+  {
+    "id": 3,
+    "customerId": 3,
+    "screeningId": 2,
+    "seats": ["E10"],
+    "totalPrice": 250.00,
+    "createdAt": "2026-11-12T09:20:00",
+    "cancelledAt": "2026-11-13T10:00:00",
+    "status": "CANCELLED"
+  },
+  {
+    "id": 4,
+    "customerId": 4,
+    "screeningId": 4,
+    "seats": ["A1", "A2"],
+    "totalPrice": 1000.00,
+    "createdAt": "2026-11-14T18:00:00",
+    "cancelledAt": null,
+    "status": "ACTIVE"
+  },
+  {
+    "id": 5,
+    "customerId": 1,
+    "screeningId": 3,
+    "seats": ["B1", "B2", "B3", "B4"],
+    "totalPrice": 1120.00,
+    "createdAt": "2026-11-14T11:15:00",
+    "cancelledAt": null,
+    "status": "ACTIVE"
+  }
+]

@@ -1,0 +1,47 @@
+[
+  {
+    "id": 1,
+    "title": "Avatar",
+    "genre": "Sci-Fi",
+    "durationMinutes": 162,
+    "ageRating": 12,
+    "basePrice": 300.00,
+    "active": true
+  },
+  {
+    "id": 2,
+    "title": "The Dark Knight",
+    "genre": "Action",
+    "durationMinutes": 152,
+    "ageRating": 16,
+    "basePrice": 250.00,
+    "active": true
+  },
+  {
+    "id": 3,
+    "title": "Interstellar",
+    "genre": "Sci-Fi",
+    "durationMinutes": 169,
+    "ageRating": 12,
+    "basePrice": 280.00,
+    "active": true
+  },
+  {
+    "id": 4,
+    "title": "Dune: Part Two",
+    "genre": "Sci-Fi",
+    "durationMinutes": 166,
+    "ageRating": 12,
+    "basePrice": 350.00,
+    "active": true
+  },
+  {
+    "id": 5,
+    "title": "Forrest Gump",
+    "genre": "Drama",
+    "durationMinutes": 142,
+    "ageRating": 16,
+    "basePrice": 200.00,
+    "active": false
+  }
+]

@@ -1,0 +1,42 @@
+[
+  {
+    "id": 1,
+    "name": "Иван",
+    "surname": "Иванов",
+    "email": "ivan.ivanov@example.com",
+    "phoneNumber": "+79991234567",
+    "active": true
+  },
+  {
+    "id": 2,
+    "name": "Анна",
+    "surname": "Смирнова",
+    "email": "anna.s@example.com",
+    "phoneNumber": "+79997654321",
+    "active": true
+  },
+  {
+    "id": 3,
+    "name": "Алексей",
+    "surname": "Петров",
+    "email": "alex.p@example.com",
+    "phoneNumber": "+79001112233",
+    "active": true
+  },
+  {
+    "id": 4,
+    "name": "Елена",
+    "surname": "Соколова",
+    "email": "elena.sokolova@example.com",
+    "phoneNumber": "+79004445566",
+    "active": true
+  },
+  {
+    "id": 5,
+    "name": "Дмитрий",
+    "surname": "Кузнецов",
+    "email": "dmitry.k@example.com",
+    "phoneNumber": "+79009998877",
+    "active": false
+  }
+]

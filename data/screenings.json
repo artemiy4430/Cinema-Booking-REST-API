@@ -1,0 +1,47 @@
+[
+  {
+    "id": 1,
+    "movieId": 1,
+    "hallId": 1,
+    "startAt": "2026-11-15T14:00:00",
+    "endAt": "2026-11-15T16:42:00",
+    "price": 300.00,
+    "active": true
+  },
+  {
+    "id": 2,
+    "movieId": 2,
+    "hallId": 2,
+    "startAt": "2026-11-15T18:00:00",
+    "endAt": "2026-11-15T20:32:00",
+    "price": 250.00,
+    "active": true
+  },
+  {
+    "id": 3,
+    "movieId": 3,
+    "hallId": 3,
+    "startAt": "2026-11-16T12:00:00",
+    "endAt": "2026-11-16T14:49:00",
+    "price": 280.00,
+    "active": true
+  },
+  {
+    "id": 4,
+    "movieId": 4,
+    "hallId": 4,
+    "startAt": "2026-11-16T19:00:00",
+    "endAt": "2026-11-16T21:46:00",
+    "price": 500.00,
+    "active": true
+  },
+  {
+    "id": 5,
+    "movieId": 1,
+    "hallId": 1,
+    "startAt": "2026-11-15T21:00:00",
+    "endAt": "2026-11-15T23:42:00",
+    "price": 350.00,
+    "active": false
+  }
+]

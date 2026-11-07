@@ -1,0 +1,37 @@
+[
+  {
+    "id": 1,
+    "name": "Red Hall",
+    "rows": 8,
+    "seatsPerRow": 12,
+    "active": true
+  },
+  {
+    "id": 2,
+    "name": "Blue Hall",
+    "rows": 10,
+    "seatsPerRow": 15,
+    "active": true
+  },
+  {
+    "id": 3,
+    "name": "Green Hall",
+    "rows": 6,
+    "seatsPerRow": 10,
+    "active": true
+  },
+  {
+    "id": 4,
+    "name": "VIP Hall",
+    "rows": 4,
+    "seatsPerRow": 6,
+    "active": true
+  },
+  {
+    "id": 5,
+    "name": "Yellow Hall",
+    "rows": 12,
+    "seatsPerRow": 20,
+    "active": false
+  }
+]
