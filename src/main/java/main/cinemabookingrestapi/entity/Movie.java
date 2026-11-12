@@ -21,10 +21,6 @@ public class Movie extends Entity {
         this.active = active;
     }
 
-    public Movie(Long id) {
-        super(id);
-    }
-
     public Movie() {
     }
 

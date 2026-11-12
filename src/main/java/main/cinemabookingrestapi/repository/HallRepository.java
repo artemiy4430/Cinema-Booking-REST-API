@@ -16,4 +16,6 @@ public interface HallRepository {
     Optional<Hall> updateHall(Long id, Hall updatedHall);
 
     boolean removeHall(Long id);
+
+    Optional<Hall> getByName(String name);
 }

@@ -14,10 +14,12 @@ import java.util.Optional;
 
 @Repository
 public class JsonHallRepository extends JsonRepository<Hall> implements HallRepository {
+    private final JsonMaxIdRepository jsonMaxIdRepository;
 
-    public JsonHallRepository(JsonMapper jsonMapper, @Value("./data/halls.json") String filePath) {
-        super(jsonMapper, Path.of(filePath), new TypeReference<List<Hall>>() {
-        });
+    public JsonHallRepository(JsonMapper jsonMapper, @Value("./data/halls.json") String filePath,
+                              JsonMaxIdRepository jsonMaxIdRepository) {
+        super(jsonMapper, Path.of(filePath), new TypeReference<List<Hall>>() {});
+        this.jsonMaxIdRepository = jsonMaxIdRepository;
     }
 
     @Override
@@ -36,7 +38,9 @@ public class JsonHallRepository extends JsonRepository<Hall> implements HallRepo
 
         if (halls.contains(hall)) return null;
 
-        hall.setId(generateNewId(halls));
+        hall.setId(jsonMaxIdRepository.generateNewId(hall));
+        hall.setActive(true);
+
         halls.add(hall);
         writeEntities(halls);
 
@@ -45,10 +49,14 @@ public class JsonHallRepository extends JsonRepository<Hall> implements HallRepo
 
     @Override
     public synchronized Optional<Hall> updateHall(Long id, Hall updatedHall) {
+        if (updatedHall == null || id == null || id < 1) return Optional.empty();
+
         List<Hall> halls = readEntities();
         Optional<Hall> hall = halls.stream().filter(h -> Objects.equals(h.getId(), id)).findFirst();
 
         if (hall.isEmpty()) return Optional.empty();
+
+        updatedHall.setId(id);
 
         halls.remove(hall.get());
         halls.add(updatedHall);
@@ -68,5 +76,10 @@ public class JsonHallRepository extends JsonRepository<Hall> implements HallRepo
         writeEntities(halls);
 
         return true;
+    }
+
+    @Override
+    public Optional<Hall> getByName(String name) {
+        return readEntities().stream().filter(h -> Objects.equals(h.getName(), name)).findFirst();
     }
 }

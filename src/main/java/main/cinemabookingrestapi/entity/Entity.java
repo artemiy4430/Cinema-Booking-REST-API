@@ -7,8 +7,7 @@ public abstract class Entity {
         this.id = id;
     }
 
-    public Entity() {
-    }
+    public Entity() {}
 
     public Long getId() {
         return id;

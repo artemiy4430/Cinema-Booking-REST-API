@@ -5,12 +5,12 @@ import java.time.LocalDateTime;
 import java.util.Objects;
 
 public class Screening extends Entity {
-  private Long movieId;
-  private Long hallId;
-  private LocalDateTime startAt;
-  private LocalDateTime endAt;
-  private BigDecimal price;
-  private boolean active;
+    private Long movieId;
+    private Long hallId;
+    private LocalDateTime startAt;
+    private LocalDateTime endAt;
+    private BigDecimal price;
+    private boolean active;
 
     public Screening(Long id, Long movieId, Long hallId, LocalDateTime startAt, LocalDateTime endAt,
                      BigDecimal price, boolean active) {

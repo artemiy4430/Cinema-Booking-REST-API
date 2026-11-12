@@ -3,6 +3,7 @@ package main.cinemabookingrestapi.entity;
 import java.util.Objects;
 
 public class Customer extends Entity {
+    private Long id;
     private String name;
     private String surname;
     private String email;

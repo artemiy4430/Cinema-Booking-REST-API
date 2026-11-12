@@ -14,8 +14,11 @@ import java.util.Optional;
 
 @Repository
 public class JsonCustomerRepository extends JsonRepository<Customer> implements CustomerRepository {
-    public JsonCustomerRepository(JsonMapper jsonMapper, @Value("./data/customers.json") String filePath) {
+    private final JsonMaxIdRepository maxIdRepository;
+
+    public JsonCustomerRepository(JsonMapper jsonMapper, @Value("./data/customers.json") String filePath, JsonMaxIdRepository maxIdRepository) {
         super(jsonMapper, Path.of(filePath), new TypeReference<List<Customer>>() {});
+        this.maxIdRepository = maxIdRepository;
     }
     @Override
     public synchronized List<Customer> getAll() {
@@ -36,7 +39,7 @@ public class JsonCustomerRepository extends JsonRepository<Customer> implements 
 
         if (customers.contains(customer)) return null;
 
-        customer.setId(generateNewId(customers));
+        customer.setId(maxIdRepository.generateNewId(customer));
         customers.add(customer);
         writeEntities(customers);
         return customer;
@@ -44,6 +47,8 @@ public class JsonCustomerRepository extends JsonRepository<Customer> implements 
 
     @Override
     public synchronized Optional<Customer> updateCustomer(Long id, Customer updatedCustomer) {
+        if (updatedCustomer == null || id == null || id < 1) return Optional.empty();
+
         List<Customer> customers = readEntities();
         Optional<Customer> customer = customers
                 .stream()

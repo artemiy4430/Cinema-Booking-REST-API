@@ -2,6 +2,7 @@ package main.cinemabookingrestapi.repositories;
 
 import main.cinemabookingrestapi.entity.Hall;
 import main.cinemabookingrestapi.repository.json.JsonHallRepository;
+import main.cinemabookingrestapi.repository.json.JsonMaxIdRepository;
 import tools.jackson.databind.json.JsonMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -20,11 +21,17 @@ public class JsonHallRepositoryTest {
     Path tempDir;
 
     private JsonHallRepository repository;
+    private JsonMaxIdRepository maxIdRepository;
 
     @BeforeEach
     void setUp() {
+        JsonMapper jsonMapper = new JsonMapper();
+
+        Path maxIdsFile = tempDir.resolve("temp_max_ids.json");
+        maxIdRepository = new JsonMaxIdRepository(jsonMapper, maxIdsFile.toString());
+
         Path file = tempDir.resolve("temp_halls.json");
-        repository = new JsonHallRepository(new JsonMapper(), file.toString());
+        repository = new JsonHallRepository(jsonMapper, file.toString(), maxIdRepository);
     }
 
     @Test
@@ -88,6 +95,17 @@ public class JsonHallRepositoryTest {
     @Test
     void updateHall_shouldReturnEmptyOptional_whenHallIsNotFound() {
         Long incorrectId = 12L;
+        Hall hall = createHall();
+
+        Optional<Hall> hallOptional = repository.updateHall(incorrectId, hall);
+
+        assertNotNull(hallOptional);
+        assertTrue(hallOptional.isEmpty());
+    }
+
+    @Test
+    void updateHall_shouldReturnEmptyOptional_whenIdIsZero() {
+        Long incorrectId = 0L;
         Hall hall = createHall();
 
         Optional<Hall> hallOptional = repository.updateHall(incorrectId, hall);

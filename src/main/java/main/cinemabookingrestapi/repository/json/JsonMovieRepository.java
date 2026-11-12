@@ -14,9 +14,11 @@ import java.util.Optional;
 
 @Repository
 public class JsonMovieRepository extends JsonRepository<Movie> implements MovieRepository {
+    private final JsonMaxIdRepository maxIdRepository;
 
-    public JsonMovieRepository(JsonMapper jsonMapper, @Value("./data/movies.json") String filePath) {
+    public JsonMovieRepository(JsonMapper jsonMapper, @Value("./data/movies.json") String filePath, JsonMaxIdRepository maxIdRepository) {
         super(jsonMapper, Path.of(filePath), new TypeReference<List<Movie>>() {});
+        this.maxIdRepository = maxIdRepository;
     }
 
     @Override
@@ -36,7 +38,7 @@ public class JsonMovieRepository extends JsonRepository<Movie> implements MovieR
         if (movies.contains(movie)) {
             return null;
         }
-        movie.setId(generateNewId(movies));
+        movie.setId(maxIdRepository.generateNewId(movie));
         movies.add(movie);
         writeEntities(movies);
 
@@ -45,12 +47,19 @@ public class JsonMovieRepository extends JsonRepository<Movie> implements MovieR
 
     @Override
     public synchronized Optional<Movie> updateMovie(Long id, Movie updatedMovie) {
+        if (updatedMovie == null || id == null || id < 1) return Optional.empty();
+
         List<Movie> movies = readEntities();
-        Optional<Movie> movie = movies.stream().filter(m -> Objects.equals(m.getId(), id)).findFirst();
+        Optional<Movie> movie = movies
+                .stream()
+                .filter(m -> Objects.equals(m.getId(), id))
+                .findFirst();
 
         if (movie.isEmpty()) {
             return Optional.empty();
         }
+
+        updatedMovie.setId(id);
 
         movies.remove(movie.get());
         movies.add(updatedMovie);

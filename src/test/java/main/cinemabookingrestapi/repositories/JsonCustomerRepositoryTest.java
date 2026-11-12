@@ -2,6 +2,7 @@ package main.cinemabookingrestapi.repositories;
 
 import main.cinemabookingrestapi.entity.Customer;
 import main.cinemabookingrestapi.repository.json.JsonCustomerRepository;
+import main.cinemabookingrestapi.repository.json.JsonMaxIdRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -20,12 +21,17 @@ public class JsonCustomerRepositoryTest {
     Path tempDir;
 
     private JsonCustomerRepository repository;
+    private JsonMaxIdRepository maxIdRepository;
 
     @BeforeEach
     void setUp() {
-        Path file = tempDir.resolve("temp_customers.json");
+        JsonMapper jsonMapper = new JsonMapper();
 
-        repository = new JsonCustomerRepository(new JsonMapper(), file.toString());
+        Path maxIdsFile = tempDir.resolve("temp_max_ids.json");
+        maxIdRepository = new JsonMaxIdRepository(jsonMapper, maxIdsFile.toString());
+
+        Path file = tempDir.resolve("temp_customers.json");
+        repository = new JsonCustomerRepository(jsonMapper, file.toString(), maxIdRepository);
     }
 
     @Test
@@ -116,6 +122,17 @@ public class JsonCustomerRepositoryTest {
     @Test
     void updateCustomer_shouldReturnEmptyOptional_whenCustomerIsNotFound(){
         Long incorrectId = 12L;
+        Customer customer = createCustomer();
+
+        Optional<Customer> customerOptional = repository.updateCustomer(incorrectId, customer);
+
+        assertNotNull(customerOptional);
+        assertTrue(customerOptional.isEmpty());
+    }
+
+    @Test
+    void updateCustomer_shouldReturnEmptyOptional_whenIdIsZero(){
+        Long incorrectId = 0L;
         Customer customer = createCustomer();
 
         Optional<Customer> customerOptional = repository.updateCustomer(incorrectId, customer);

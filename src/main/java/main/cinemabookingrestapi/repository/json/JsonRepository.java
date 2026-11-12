@@ -66,8 +66,4 @@ public abstract class JsonRepository<T> {
         }
     }
 
-    public Long generateNewId(List<? extends Entity> entities) {
-        return entities.stream().mapToLong(Entity::getId).max().orElse(0) + 1;
-    }
-
 }

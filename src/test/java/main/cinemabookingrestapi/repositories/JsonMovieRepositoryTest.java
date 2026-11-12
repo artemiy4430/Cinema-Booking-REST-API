@@ -1,5 +1,6 @@
 package main.cinemabookingrestapi.repositories;
 
+import main.cinemabookingrestapi.repository.json.JsonMaxIdRepository;
 import tools.jackson.databind.json.JsonMapper;
 import main.cinemabookingrestapi.entity.Movie;
 import main.cinemabookingrestapi.repository.json.JsonMovieRepository;
@@ -21,11 +22,17 @@ public class JsonMovieRepositoryTest {
     Path tempDir;
 
     private JsonMovieRepository repository;
+    private JsonMaxIdRepository maxIdRepository;
 
     @BeforeEach
     void setUp() {
+        JsonMapper jsonMapper = new JsonMapper();
+
+        Path maxIdsFile = tempDir.resolve("temp_max_ids.json");
+        maxIdRepository = new JsonMaxIdRepository(jsonMapper, maxIdsFile.toString());
+
         Path file = tempDir.resolve("temp_movies.json");
-        repository = new JsonMovieRepository(new JsonMapper(), file.toString());
+        repository = new JsonMovieRepository(new JsonMapper(), file.toString(), maxIdRepository);
     }
 
     @Test
@@ -98,6 +105,17 @@ public class JsonMovieRepositoryTest {
     @Test
     void updateMovie_shouldReturnEmptyOptional_whenMovieIsNotFound() {
         Long incorrectId = 12L;
+        Movie movie = createMovie();
+
+        Optional<Movie> movieOptional = repository.updateMovie(incorrectId, movie);
+
+        assertNotNull(movieOptional);
+        assertTrue(movieOptional.isEmpty());
+    }
+
+    @Test
+    void updateMovie_shouldReturnEmptyOptional_whenIdIsZero() {
+        Long incorrectId = 0L;
         Movie movie = createMovie();
 
         Optional<Movie> movieOptional = repository.updateMovie(incorrectId, movie);

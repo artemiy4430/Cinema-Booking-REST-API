@@ -3,6 +3,7 @@ package main.cinemabookingrestapi.repositories;
 import main.cinemabookingrestapi.entity.Booking;
 import main.cinemabookingrestapi.entity.BookingStatus;
 import main.cinemabookingrestapi.repository.json.JsonBookingRepository;
+import main.cinemabookingrestapi.repository.json.JsonMaxIdRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -23,12 +24,17 @@ public class JsonBookingRepositoryTest {
     Path tempDir;
 
     private JsonBookingRepository repository;
+    private JsonMaxIdRepository maxIdRepository;
 
     @BeforeEach
     void setUp() {
-        Path file = tempDir.resolve("temp_bookings.json");
+        JsonMapper jsonMapper = new JsonMapper();
 
-        repository = new JsonBookingRepository(new JsonMapper(), file.toString());
+        Path maxIdsFile = tempDir.resolve("temp_max_ids.json");
+        maxIdRepository = new JsonMaxIdRepository(jsonMapper, maxIdsFile.toString());
+
+        Path file = tempDir.resolve("temp_bookings.json");
+        repository = new JsonBookingRepository(jsonMapper, file.toString(), maxIdRepository);
     }
 
     @Test
@@ -124,6 +130,17 @@ public class JsonBookingRepositoryTest {
     @Test
     void cancelBooking_shouldReturnEmptyOptional_whenBookingIsNotFound() {
         Long incorrectId = 12L;
+        Booking booking = createBooking();
+
+        Optional<Booking> bookingOptional = repository.cancelBooking(incorrectId, booking);
+
+        assertNotNull(bookingOptional);
+        assertTrue(bookingOptional.isEmpty());
+    }
+
+    @Test
+    void cancelBooking_shouldReturnEmptyOptional_whenIdIsZero() {
+        Long incorrectId = 0L;
         Booking booking = createBooking();
 
         Optional<Booking> bookingOptional = repository.cancelBooking(incorrectId, booking);

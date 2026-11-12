@@ -2,6 +2,7 @@ package main.cinemabookingrestapi.repositories;
 
 
 import main.cinemabookingrestapi.entity.Screening;
+import main.cinemabookingrestapi.repository.json.JsonMaxIdRepository;
 import main.cinemabookingrestapi.repository.json.JsonScreeningRepository;
 import tools.jackson.databind.json.JsonMapper;
 import org.junit.jupiter.api.BeforeEach;
@@ -24,13 +25,17 @@ public class JsonScreeningRepositoryTest {
     Path tempDir;
 
     private JsonScreeningRepository repository;
+    private JsonMaxIdRepository maxIdRepository;
 
     @BeforeEach
     void setUp() {
+        JsonMapper jsonMapper = new JsonMapper();
+
+        Path maxIdsFile = tempDir.resolve("temp_max_ids.json");
+        maxIdRepository = new JsonMaxIdRepository(jsonMapper, maxIdsFile.toString());
+
         Path file = tempDir.resolve("temp_screenings.json");
-
-
-        repository = new JsonScreeningRepository(new JsonMapper(), file.toString());
+        repository = new JsonScreeningRepository(jsonMapper, file.toString(), maxIdRepository);
     }
 
     @Test

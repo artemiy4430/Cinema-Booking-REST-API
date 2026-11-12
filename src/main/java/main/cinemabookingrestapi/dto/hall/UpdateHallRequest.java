@@ -2,6 +2,7 @@ package main.cinemabookingrestapi.dto.hall;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import main.cinemabookingrestapi.entity.Hall;
 
 import java.util.Objects;
 
@@ -20,6 +21,14 @@ public class UpdateHallRequest {
         this.name = name;
         this.rows = rows;
         this.seatsPerRows = seatsPerRows;
+    }
+
+    public Hall updateHall(Hall hall) {
+        hall.setName(this.name);
+        hall.setRows(this.rows);
+        hall.setSeatsPerRow(this.seatsPerRows);
+
+        return hall;
     }
 
     public String getName() {

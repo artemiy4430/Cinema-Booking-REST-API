@@ -14,9 +14,12 @@ import java.util.Optional;
 
 @Repository
 public class JsonScreeningRepository extends JsonRepository<Screening> implements ScreeningRepository {
+    private final JsonMaxIdRepository maxIdRepository;
 
-    public JsonScreeningRepository(JsonMapper jsonMapper, @Value("./data/screenigs.json") String filePath) {
+    public JsonScreeningRepository(JsonMapper jsonMapper, @Value("./data/screenigs.json") String filePath,
+                                   JsonMaxIdRepository maxIdRepository) {
         super(jsonMapper, Path.of(filePath), new TypeReference<List<Screening>>(){});
+        this.maxIdRepository = maxIdRepository;
     }
 
     @Override
@@ -37,7 +40,7 @@ public class JsonScreeningRepository extends JsonRepository<Screening> implement
             return null;
         }
 
-        screening.setId(generateNewId(screenings));
+        screening.setId(maxIdRepository.generateNewId(screening));
         screenings.add(screening);
         writeEntities(screenings);
         return screening;
@@ -46,7 +49,9 @@ public class JsonScreeningRepository extends JsonRepository<Screening> implement
     @Override
     public synchronized boolean removeScreening(Long id) {
         List<Screening> screenings = readEntities();
-        Optional<Screening> screening = screenings.stream().filter(s -> Objects.equals(s.getId(), id))
+        Optional<Screening> screening = screenings
+                .stream()
+                .filter(s -> Objects.equals(s.getId(), id))
                 .findFirst();
 
         if (screening.isEmpty()) return false;

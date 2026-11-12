@@ -14,8 +14,12 @@ import java.util.Optional;
 
 @Repository
 public class JsonBookingRepository extends JsonRepository<Booking> implements BookingRepository {
-    public JsonBookingRepository(JsonMapper jsonMapper, @Value("./data/bookings.json") String filePath) {
+    private final JsonMaxIdRepository maxIdRepository;
+
+    public JsonBookingRepository(JsonMapper jsonMapper, @Value("./data/bookings.json") String filePath,
+                                 JsonMaxIdRepository maxIdRepository) {
         super(jsonMapper, Path.of(filePath), new TypeReference<List<Booking>>(){});
+        this.maxIdRepository = maxIdRepository;
     }
 
     @Override
@@ -39,7 +43,7 @@ public class JsonBookingRepository extends JsonRepository<Booking> implements Bo
 
         if (bookings.contains(booking)) return null;
 
-        booking.setId(generateNewId(bookings));
+        booking.setId(maxIdRepository.generateNewId(booking));
         bookings.add(booking);
         writeEntities(bookings);
 
@@ -48,10 +52,16 @@ public class JsonBookingRepository extends JsonRepository<Booking> implements Bo
 
     @Override
     public synchronized Optional<Booking> cancelBooking(Long bookingId, Booking updatedBooking) {
+        if (updatedBooking == null || bookingId == null || bookingId < 1) {
+            return Optional.empty();
+        }
+
         List<Booking> bookings = readEntities();
         Optional<Booking> booking = bookings.stream().filter(b -> Objects.equals(b.getId(), bookingId)).findFirst();
 
         if (booking.isEmpty()) return Optional.empty();
+
+        updatedBooking.setId(bookingId);
 
         bookings.remove(booking.get());
         bookings.add(updatedBooking);

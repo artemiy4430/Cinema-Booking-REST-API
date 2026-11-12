@@ -25,6 +25,30 @@ public class CreateBookingRequest {
         this.seats = seats;
     }
 
+    public Long getCustomerId() {
+        return customerId;
+    }
+
+    public Long getScreeningId() {
+        return screeningId;
+    }
+
+    public List<String> getSeats() {
+        return seats;
+    }
+
+    public void setCustomerId(Long customerId) {
+        this.customerId = customerId;
+    }
+
+    public void setScreeningId(Long screeningId) {
+        this.screeningId = screeningId;
+    }
+
+    public void setSeats(List<String> seats) {
+        this.seats = seats;
+    }
+
     public Booking toEntity() {
         Booking booking = new Booking();
 

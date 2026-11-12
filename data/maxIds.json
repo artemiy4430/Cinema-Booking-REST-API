@@ -1,0 +1,22 @@
+[
+  {
+    "entityName": "Customer",
+    "maxId": 1
+  },
+  {
+    "entityName": "Booking",
+    "maxId": 1
+  },
+  {
+    "entityName": "Hall",
+    "maxId": 1
+  },
+  {
+    "entityName": "Movie",
+    "maxId": 1
+  },
+  {
+    "entityName": "Screening",
+    "maxId": 1
+  }
+]
