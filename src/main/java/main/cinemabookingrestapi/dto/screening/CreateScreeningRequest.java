@@ -1,4 +1,4 @@
-package main.cinemabookingrestapi.dto.screeing;
+package main.cinemabookingrestapi.dto.screening;
 
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Future;
@@ -70,7 +70,9 @@ public class CreateScreeningRequest {
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         CreateScreeningRequest that = (CreateScreeningRequest) o;
-        return Objects.equals(movieId, that.movieId) && Objects.equals(hallId, that.hallId) && Objects.equals(startAt, that.startAt) && Objects.equals(price, that.price);
+        return Objects.equals(movieId, that.movieId)
+                && Objects.equals(hallId, that.hallId) && Objects.equals(startAt, that.startAt)
+                && Objects.equals(price, that.price);
     }
 
     @Override

@@ -68,7 +68,7 @@ public class CustomerResponse {
         this.phoneNumber = phoneNumber;
     }
 
-    public static CustomerResponse formEntity(Customer customer) {
+    public static CustomerResponse fromEntity(Customer customer) {
         CustomerResponse response = new CustomerResponse();
 
         response.setName(customer.getName());

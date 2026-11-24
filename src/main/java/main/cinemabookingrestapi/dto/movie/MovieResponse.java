@@ -1,32 +1,24 @@
 package main.cinemabookingrestapi.dto.movie;
 
 import jakarta.validation.constraints.*;
+import main.cinemabookingrestapi.entity.Movie;
 
 import java.math.BigDecimal;
 import java.util.Objects;
 
 public class MovieResponse {
-
-    private Long id;
     private String title;
     private String genre;
     private int durationMinutes;
     private int ageRating;
     private BigDecimal basePrice;
-    private boolean active;
 
-    public MovieResponse(Long id, String title, String genre, int durationMinutes, int ageRating, BigDecimal basePrice, boolean active) {
-        this.id = id;
+    public MovieResponse(String title, String genre, int durationMinutes, int ageRating, BigDecimal basePrice) {
         this.title = title;
         this.genre = genre;
         this.durationMinutes = durationMinutes;
         this.ageRating = ageRating;
         this.basePrice = basePrice;
-        this.active = active;
-    }
-
-    public Long getId() {
-        return id;
     }
 
     public String getTitle() {
@@ -49,14 +41,6 @@ public class MovieResponse {
         return basePrice;
     }
 
-    public boolean isActive() {
-        return active;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
     public void setTitle(String title) {
         this.title = title;
     }
@@ -77,19 +61,25 @@ public class MovieResponse {
         this.basePrice = basePrice;
     }
 
-    public void setActive(boolean active) {
-        this.active = active;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         MovieResponse that = (MovieResponse) o;
-        return durationMinutes == that.durationMinutes && ageRating == that.ageRating && active == that.active && Objects.equals(id, that.id) && Objects.equals(title, that.title) && Objects.equals(genre, that.genre) && Objects.equals(basePrice, that.basePrice);
+        return durationMinutes == that.durationMinutes && ageRating == that.ageRating && Objects.equals(title, that.title) && Objects.equals(genre, that.genre) && Objects.equals(basePrice, that.basePrice);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, title, genre, durationMinutes, ageRating, basePrice, active);
+        return Objects.hash(title, genre, durationMinutes, ageRating, basePrice);
+    }
+
+    public static MovieResponse fromEntity(Movie movie) {
+        return new MovieResponse(
+                movie.getTitle(),
+                movie.getGenre(),
+                movie.getDurationMinutes(),
+                movie.getAgeRating(),
+                movie.getBasePrice()
+        );
     }
 }

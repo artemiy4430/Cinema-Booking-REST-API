@@ -1,6 +1,7 @@
 package main.cinemabookingrestapi.dto.movie;
 
 import jakarta.validation.constraints.*;
+import main.cinemabookingrestapi.entity.Hall;
 import main.cinemabookingrestapi.entity.Movie;
 
 import java.math.BigDecimal;
@@ -36,6 +37,16 @@ public class UpdateMovieRequest {
     }
 
     public UpdateMovieRequest() {
+    }
+
+    public Movie updateMovie(Movie movie) {
+        movie.setTitle(this.title);
+        movie.setGenre(this.genre);
+        movie.setDurationMinutes(this.durationMinutes);
+        movie.setAgeRating(this.ageRating);
+        movie.setBasePrice(this.basePrice);
+
+        return movie;
     }
 
     public String getTitle() {
@@ -91,15 +102,4 @@ public class UpdateMovieRequest {
         return Objects.hash(title, genre, durationMinutes, ageRating, basePrice);
     }
 
-    public static UpdateMovieRequest fromEntity(Movie movie) {
-        UpdateMovieRequest request = new UpdateMovieRequest();
-
-        request.setTitle(movie.getTitle());
-        request.setGenre(movie.getGenre());
-        request.setDurationMinutes(movie.getDurationMinutes());
-        request.setAgeRating(movie.getAgeRating());
-        request.setBasePrice(movie.getBasePrice());
-
-        return request;
-    }
 }

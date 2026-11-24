@@ -18,6 +18,12 @@ public class CreateHallRequest {
     @Size(min = 1, max = 50, message = "сидений должно быть от 1 до 30")
     private int seatsPerRows;
 
+    public CreateHallRequest(String name, int rows, int seatsPerRows) {
+        this.name = name;
+        this.rows = rows;
+        this.seatsPerRows = seatsPerRows;
+    }
+
     public String getName() {
         return name;
     }

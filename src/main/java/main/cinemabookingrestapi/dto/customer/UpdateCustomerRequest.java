@@ -4,6 +4,8 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
+import main.cinemabookingrestapi.entity.Customer;
+import main.cinemabookingrestapi.entity.Hall;
 
 import java.util.Objects;
 
@@ -30,6 +32,15 @@ public class UpdateCustomerRequest {
         this.surname = surname;
         this.email = email;
         this.phoneNumber = phoneNumber;
+    }
+
+    public Customer updateCustomer(Customer customer) {
+        customer.setName(this.name);
+        customer.setSurname(this.surname);
+        customer.setEmail(this.email);
+        customer.setPhoneNumber(this.phoneNumber);
+
+        return customer;
     }
 
     public String getName() {
