@@ -13,6 +13,8 @@ public interface BookingRepository {
 
     Optional<Booking> getByCustomerID(Long customerId);
 
+    Optional<Booking> getByScreeningId(Long screeningId);
+
     Booking addBooking(Booking booking);
 
     Optional<Booking> cancelBooking(Long bookingId, Booking updatedBooking);

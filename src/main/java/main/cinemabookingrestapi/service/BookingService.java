@@ -69,6 +69,18 @@ public class BookingService {
         return booking;
     }
 
+    public Optional<Booking> getByScreeningId(Long screeningId) {
+        if (screeningId == null || screeningId < 1) {
+            throw new IllegalArgumentException();
+        }
+
+        Optional<Booking> booking = bookingRepository.getByScreeningId(screeningId);
+
+        if (booking.isEmpty()) throw new BookingNotFoundException(screeningId);
+
+        return booking;
+    }
+
     public CreateBookingResponse addBooking(CreateBookingRequest request) {
         if (request == null) throw new IllegalArgumentException();
 

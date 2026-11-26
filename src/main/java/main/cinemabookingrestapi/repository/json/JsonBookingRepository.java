@@ -38,6 +38,11 @@ public class JsonBookingRepository extends JsonRepository<Booking> implements Bo
     }
 
     @Override
+    public Optional<Booking> getByScreeningId(Long screeningId) {
+        return readEntities().stream().filter(b -> Objects.equals(b.getScreeningId(), screeningId)).findFirst();
+    }
+
+    @Override
     public synchronized Booking addBooking(Booking booking) {
         List<Booking> bookings = readEntities();
 

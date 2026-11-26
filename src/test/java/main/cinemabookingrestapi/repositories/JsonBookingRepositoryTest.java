@@ -112,6 +112,28 @@ public class JsonBookingRepositoryTest {
     }
 
     @Test
+    void getByScreeningId_shouldReturnOptionalOfBooking() {
+        Booking booking = createBooking();
+        repository.addBooking(booking);
+
+        Optional<Booking> bookingOptional = repository.getByScreeningId(booking.getScreeningId());
+
+        assertNotNull(bookingOptional);
+        assertTrue(bookingOptional.isPresent());
+        assertEquals(booking.getScreeningId(), bookingOptional.get().getScreeningId());
+    }
+
+    @Test
+    void getByScreeningId_shouldReturnEmptyOptional_whenBookingIsNotFound() {
+        Long incorrectScreeningId = 12L;
+
+        Optional<Booking> bookingOptional = repository.getByScreeningId(incorrectScreeningId);
+
+        assertNotNull(bookingOptional);
+        assertTrue(bookingOptional.isEmpty());
+    }
+
+    @Test
     void addBooking_shouldGenerateIdAndAddEntityInFile() {
         Booking booking = createBooking();
         booking.setId(null);

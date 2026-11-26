@@ -177,6 +177,53 @@ public class BookingServiceTest {
         verifyNoInteractions(bookingRepository);
     }
 
+
+    @Test
+    void getScreeningById_shouldReturnOptionalOfBooking() {
+        Booking booking = createBooking();
+
+        when(bookingRepository.getByScreeningId(booking.getScreeningId())).thenReturn(Optional.of(booking));
+
+        Optional<Booking> bookingOptional = bookingService.getByScreeningId(booking.getScreeningId());
+
+        assertNotNull(bookingOptional);
+        assertTrue(bookingOptional.isPresent());
+        assertEquals(booking.getScreeningId(), bookingOptional.get().getScreeningId());
+
+        verify(bookingRepository).getByScreeningId(booking.getScreeningId());
+    }
+
+    @Test
+    void getScreeningById_shouldThrowBookingNotFoundException_whenBookingIsNotFound() {
+        Long incorrectScreeningId = 12L;
+
+        when(bookingRepository.getByScreeningId(incorrectScreeningId)).thenThrow(new BookingNotFoundException(incorrectScreeningId));
+
+        assertThrows(BookingNotFoundException.class, () -> {
+            bookingService.getByScreeningId(incorrectScreeningId);
+        });
+
+        verify(bookingRepository).getByScreeningId(anyLong());
+    }
+
+    @Test
+    void getScreeningById_shouldThrowIllegalArgumentException_whenIdIsNull() {
+        assertThrows(IllegalArgumentException.class, () -> {
+            bookingService.getByScreeningId(null);
+        });
+
+        verifyNoInteractions(bookingRepository);
+    }
+
+    @Test
+    void getScreeningById_shouldThrowIllegalArgumentException_whenIdIsLessThanOne() {
+        assertThrows(IllegalArgumentException.class, () -> {
+            bookingService.getByScreeningId(0L);
+        });
+
+        verifyNoInteractions(bookingRepository);
+    }
+
     @Test
     void addBooking_shouldReturnBookingResponse() {
 
