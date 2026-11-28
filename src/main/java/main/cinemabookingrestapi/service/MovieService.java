@@ -5,9 +5,12 @@ import main.cinemabookingrestapi.dto.movie.MovieFilterRequest;
 import main.cinemabookingrestapi.dto.movie.MovieResponse;
 import main.cinemabookingrestapi.dto.movie.UpdateMovieRequest;
 import main.cinemabookingrestapi.entity.Movie;
+import main.cinemabookingrestapi.entity.Screening;
 import main.cinemabookingrestapi.exception.alreadyExist.MovieAlreadyExistsException;
+import main.cinemabookingrestapi.exception.isPresentException.MovieIsPresentInScreeningException;
 import main.cinemabookingrestapi.exception.notFound.MovieNotFoundException;
 import main.cinemabookingrestapi.repository.MovieRepository;
+import main.cinemabookingrestapi.repository.ScreeningRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -17,9 +20,11 @@ import java.util.Optional;
 @Service
 public class MovieService {
     private final MovieRepository movieRepository;
+    private final ScreeningRepository screeningRepository;
 
-    public MovieService(MovieRepository movieRepository) {
+    public MovieService(MovieRepository movieRepository, ScreeningRepository screeningRepository) {
         this.movieRepository = movieRepository;
+        this.screeningRepository = screeningRepository;
     }
 
     public List<Movie> getAll() {
@@ -46,7 +51,7 @@ public class MovieService {
 
         movie.setActive(true);
 
-        Movie savedMovie = movieRepository.addMovie(request.toEntity());
+        Movie savedMovie = movieRepository.addMovie(movie);
 
         if (savedMovie == null) throw new IllegalArgumentException();
 
@@ -67,7 +72,14 @@ public class MovieService {
     public void removeMovie(Long id) {
         if (id == null || id < 1) throw new IllegalArgumentException();
 
-        Movie movie = movieRepository.getById(id).orElseThrow(() -> new MovieNotFoundException(id));
+        Movie movie = movieRepository.getById(id)
+                .orElseThrow(() -> new MovieNotFoundException(id));
+
+        boolean isAnyScreeningContainsMovie = screeningRepository.getAll()
+                .stream()
+                .anyMatch(s -> Objects.equals(s.getMovieId(), id));
+
+        if (isAnyScreeningContainsMovie) throw new MovieIsPresentInScreeningException(id);
 
         movieRepository.removeMovie(id);
     }
@@ -82,7 +94,7 @@ public class MovieService {
                 || request.getMinPrice().isPresent()
                 || request.getTitle().isPresent()) {
             movies = movies.stream().filter(m -> request.getGenre().isEmpty()
-                    || Objects.equals(m.getGenre(), request.getGenre().get()))
+                            || Objects.equals(m.getGenre(), request.getGenre().get()))
                     .filter(m -> request.getActive().isEmpty() ||
                             m.isActive() == request.getActive().get())
                     .filter(m -> request.getMinPrice().isEmpty() ||

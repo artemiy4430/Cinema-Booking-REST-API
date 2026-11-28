@@ -3,16 +3,16 @@ package main.cinemabookingrestapi.services;
 import main.cinemabookingrestapi.dto.screening.CreateScreeningRequest;
 import main.cinemabookingrestapi.dto.screening.ScreeningFilterRequest;
 import main.cinemabookingrestapi.dto.screening.ScreeningResponse;
-import main.cinemabookingrestapi.entity.Hall;
-import main.cinemabookingrestapi.entity.Movie;
-import main.cinemabookingrestapi.entity.Screening;
+import main.cinemabookingrestapi.entity.*;
 import main.cinemabookingrestapi.exception.inactive.InactiveHallException;
 import main.cinemabookingrestapi.exception.inactive.InactiveMovieException;
+import main.cinemabookingrestapi.exception.isPresentException.ScreeningIsPresentInBookingException;
 import main.cinemabookingrestapi.exception.notFound.HallNotFoundException;
 import main.cinemabookingrestapi.exception.notFound.MovieNotFoundException;
 import main.cinemabookingrestapi.exception.notFound.ScreeningNotFoundException;
 import main.cinemabookingrestapi.exception.screeningException.ScreeningAlreadyStartedException;
 import main.cinemabookingrestapi.exception.screeningException.ScreeningTimeException;
+import main.cinemabookingrestapi.repository.BookingRepository;
 import main.cinemabookingrestapi.repository.HallRepository;
 import main.cinemabookingrestapi.repository.MovieRepository;
 import main.cinemabookingrestapi.repository.ScreeningRepository;
@@ -40,6 +40,9 @@ public class ScreeningServiceTest {
 
     @Mock
     private ScreeningRepository screeningRepository;
+
+    @Mock
+    private BookingRepository bookingRepository;
 
     @Mock
     private MovieRepository movieRepository;
@@ -382,6 +385,20 @@ public class ScreeningServiceTest {
         verify(screeningRepository, never()).removeScreening(anyLong());
     }
 
+    @Test
+    void removeScreening_shouldThrowScreeningIsPresentInBooking_whenGivenScreeningIsPresentInBooking() {
+        Screening screening = createScreening();
+        List<Booking> bookings = createListBookings();
+
+        when(screeningRepository.getById(screening.getId())).thenReturn(Optional.of(screening));
+        when(bookingRepository.getAll()).thenReturn(bookings);
+
+        assertThrows(ScreeningIsPresentInBookingException.class,
+                () -> screeningService.removeScreening(screening.getId()));
+
+        verify(screeningRepository).getById(screening.getId());
+        verify(screeningRepository, never()).removeScreening(anyLong());
+    }
 
     private Screening createScreening() {
         return new Screening(
@@ -439,6 +456,31 @@ public class ScreeningServiceTest {
                         LocalDateTime.of(2026, 11, 8, 14, 49),
                         new BigDecimal("280.00"),
                         false
+                )
+        );
+    }
+
+    private List<Booking> createListBookings() {
+        return List.of(
+                new Booking(
+                        1L,
+                        1L,
+                        1L,
+                        List.of("A1", "A2", "A3"),
+                        BigDecimal.valueOf(120.00),
+                        LocalDateTime.of(2026, 11, 15, 10, 0),
+                        null,
+                        BookingStatus.ACTIVE
+                ),
+                new Booking(
+                        2L,
+                        2L,
+                        1L,
+                        List.of("B1", "B2"),
+                        BigDecimal.valueOf(80.00),
+                        LocalDateTime.of(2026, 11, 15, 11, 30),
+                        null,
+                        BookingStatus.ACTIVE
                 )
         );
     }

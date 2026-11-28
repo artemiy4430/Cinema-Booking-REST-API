@@ -6,6 +6,7 @@ import main.cinemabookingrestapi.dto.booking.CreateBookingRequest;
 import main.cinemabookingrestapi.entity.*;
 import main.cinemabookingrestapi.exception.alreadyCancelled.BookingAlreadyCancelledException;
 import main.cinemabookingrestapi.exception.inactive.InactiveCustomerException;
+import main.cinemabookingrestapi.exception.inactive.InactiveHallException;
 import main.cinemabookingrestapi.exception.inactive.InactiveScreeningException;
 import main.cinemabookingrestapi.exception.notFound.BookingNotFoundException;
 import main.cinemabookingrestapi.exception.notFound.CustomerNotFoundException;
@@ -81,7 +82,7 @@ public class BookingService {
         return booking;
     }
 
-    public CreateBookingResponse addBooking(CreateBookingRequest request) {
+    public synchronized CreateBookingResponse addBooking(CreateBookingRequest request) {
         if (request == null) throw new IllegalArgumentException();
 
         Customer customer = customerRepository.getById(request.getCustomerId())
@@ -101,6 +102,9 @@ public class BookingService {
 
         Hall hall = hallRepository.getById(screening.getHallId())
                 .orElseThrow(() -> new HallNotFoundException(screening.getHallId()));
+
+        if (!hall.isActive()) throw new InactiveHallException("Hall: "
+                + screening.getHallId() + " is currently inactive");
 
         boolean isValid = request.getSeats().stream().allMatch(s -> isSeatValidInHall(s, hall));
 
@@ -160,23 +164,25 @@ public class BookingService {
     }
 
     private boolean isSeatValidInHall(String seat, Hall hall) {
-        if (seat == null || seat.length() < 2) {
+        if (seat == null || !seat.matches("^[A-Z]+[1-9]\\d*$")) {
             return false;
         }
 
-        char rowChar = seat.charAt(0);
-        int rowNumber = rowChar - 'A' + 1;
-
-        if (rowNumber < 1 || rowNumber > hall.getRows()) {
-            return false;
+        int i = 0;
+        while (i < seat.length() && Character.isLetter(seat.charAt(i))) {
+            i++;
         }
 
-        try {
-            int seatNumber = Integer.parseInt(seat.substring(1));
-            return seatNumber >= 1 && seatNumber <= hall.getSeatsPerRow();
-        } catch (NumberFormatException e) {
-            return false;
+        String rowPart = seat.substring(0, i);
+        int seatNumber = Integer.parseInt(seat.substring(i));
+
+        int rowNumber = 0;
+        for (char c : rowPart.toCharArray()) {
+            rowNumber = rowNumber * 26 + (c - 'A' + 1);
         }
+
+        return rowNumber >= 1 && rowNumber <= hall.getRows()
+                && seatNumber >= 1 && seatNumber <= hall.getSeatsPerRow();
     }
 
 }

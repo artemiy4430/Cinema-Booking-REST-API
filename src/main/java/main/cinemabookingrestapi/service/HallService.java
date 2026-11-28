@@ -6,7 +6,9 @@ import main.cinemabookingrestapi.dto.hall.UpdateHallRequest;
 import main.cinemabookingrestapi.entity.Hall;
 import main.cinemabookingrestapi.exception.alreadyExist.HallNameAlreadyExistsException;
 import main.cinemabookingrestapi.exception.notFound.HallNotFoundException;
+import main.cinemabookingrestapi.exception.isPresentException.HallIsPresentInScreeningException;
 import main.cinemabookingrestapi.repository.HallRepository;
+import main.cinemabookingrestapi.repository.ScreeningRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -16,9 +18,11 @@ import java.util.Optional;
 @Service
 public class HallService {
     private final HallRepository hallRepository;
+    private final ScreeningRepository screeningRepository;
 
-    public HallService(HallRepository hallRepository) {
+    public HallService(HallRepository hallRepository, ScreeningRepository screeningRepository) {
         this.hallRepository = hallRepository;
+        this.screeningRepository = screeningRepository;
     }
 
     public List<Hall> getAll() {
@@ -54,21 +58,23 @@ public class HallService {
     public HallResponse updateHall(Long id, UpdateHallRequest updateHallRequest) {
         if (updateHallRequest == null) throw new IllegalArgumentException();
 
-        Optional<Hall> hallOptional = hallRepository.getById(id);
+        Hall hall = hallRepository.getById(id).orElseThrow(() -> new HallNotFoundException(id));
 
-        if (hallOptional.isEmpty()) throw new HallNotFoundException(id);
+        boolean isPresentInScreening = screeningRepository.getAll().stream()
+                .anyMatch(s -> Objects.equals(s.getHallId(), id));
+
+        if (isPresentInScreening) throw new HallIsPresentInScreeningException(hall.getId());
 
         boolean isNameTaken = hallRepository
                 .getAll()
-                .stream().anyMatch(h -> Objects.equals(h.getName(), updateHallRequest.getName()));
+                .stream().anyMatch(h -> !Objects.equals(hall.getId(), h.getId())
+                        && Objects.equals(h.getName(), updateHallRequest.getName()));
 
         if (isNameTaken) throw new HallNameAlreadyExistsException(updateHallRequest.getName());
 
-        Optional<Hall> newHall = hallRepository.updateHall(id, updateHallRequest.updateHall(hallOptional.get()));
+        Hall newHall = hallRepository.updateHall(id, hall).orElseThrow(IllegalArgumentException::new);
 
-        if (newHall.isEmpty()) throw new IllegalArgumentException();
-
-        return HallResponse.fromEntity(newHall.get());
+        return HallResponse.fromEntity(newHall);
     }
 
     public void removeHall(Long id) {
@@ -80,5 +86,4 @@ public class HallService {
 
         hallRepository.updateHall(id, hall);
     }
-
 }

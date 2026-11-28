@@ -27,7 +27,7 @@ public class JsonMaxIdRepository extends JsonRepository<MaxId> implements MaxIdR
                 .findFirst();
     }
 
-    public Long generateNewId(Entity entity) {
+    public synchronized Long generateNewId(Entity entity) {
         if (entity == null) {
             throw new IllegalArgumentException("Entity cannot be null");
         }

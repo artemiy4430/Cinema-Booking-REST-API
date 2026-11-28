@@ -6,6 +6,7 @@ import main.cinemabookingrestapi.dto.booking.CreateBookingRequest;
 import main.cinemabookingrestapi.entity.*;
 import main.cinemabookingrestapi.exception.alreadyCancelled.BookingAlreadyCancelledException;
 import main.cinemabookingrestapi.exception.inactive.InactiveCustomerException;
+import main.cinemabookingrestapi.exception.inactive.InactiveHallException;
 import main.cinemabookingrestapi.exception.inactive.InactiveScreeningException;
 import main.cinemabookingrestapi.exception.notFound.BookingNotFoundException;
 import main.cinemabookingrestapi.exception.notFound.CustomerNotFoundException;
@@ -353,6 +354,28 @@ public class BookingServiceTest {
         when(hallRepository.getById(screening.getHallId())).thenReturn(Optional.empty());
 
         assertThrows(HallNotFoundException.class, () -> bookingService.addBooking(request));
+    }
+
+    @Test
+    void addBooking_shouldThrowInactiveHallException_whenHallIsInactive() {
+        Screening screening = new Screening(
+                1L,
+                1L,
+                1L,
+                LocalDateTime.now(clock).plusHours(2),
+                LocalDateTime.now(clock).plusHours(4),
+                BigDecimal.valueOf(100.00), true
+        );
+        Hall hall = createHall();
+        hall.setActive(false);
+        Customer customer = createCustomer();
+
+        CreateBookingRequest request = new CreateBookingRequest(customer.getId(), screening.getId(), List.of("A1"));
+        when(customerRepository.getById(request.getCustomerId())).thenReturn(Optional.of(customer));
+        when(screeningRepository.getById(request.getScreeningId())).thenReturn(Optional.of(screening));
+        when(hallRepository.getById(screening.getHallId())).thenReturn(Optional.of(hall));
+
+        assertThrows(InactiveHallException.class, () -> bookingService.addBooking(request));
     }
 
     @Test

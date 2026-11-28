@@ -8,11 +8,13 @@ import main.cinemabookingrestapi.entity.Movie;
 import main.cinemabookingrestapi.entity.Screening;
 import main.cinemabookingrestapi.exception.inactive.InactiveHallException;
 import main.cinemabookingrestapi.exception.inactive.InactiveMovieException;
+import main.cinemabookingrestapi.exception.isPresentException.ScreeningIsPresentInBookingException;
 import main.cinemabookingrestapi.exception.notFound.HallNotFoundException;
 import main.cinemabookingrestapi.exception.notFound.MovieNotFoundException;
 import main.cinemabookingrestapi.exception.notFound.ScreeningNotFoundException;
 import main.cinemabookingrestapi.exception.screeningException.ScreeningAlreadyStartedException;
 import main.cinemabookingrestapi.exception.screeningException.ScreeningOverlapException;
+import main.cinemabookingrestapi.repository.BookingRepository;
 import main.cinemabookingrestapi.repository.HallRepository;
 import main.cinemabookingrestapi.repository.MovieRepository;
 import main.cinemabookingrestapi.repository.ScreeningRepository;
@@ -28,13 +30,15 @@ import java.util.Optional;
 public class ScreeningService {
 
     private final ScreeningRepository screeningRepository;
+    private final BookingRepository bookingRepository;
     private final MovieRepository movieRepository;
     private final HallRepository hallRepository;
     private final Clock clock;
 
-    public ScreeningService(ScreeningRepository screeningRepository, MovieRepository movieRepository,
+    public ScreeningService(ScreeningRepository screeningRepository, BookingRepository bookingRepository, MovieRepository movieRepository,
                             HallRepository hallRepository, Clock clock) {
         this.screeningRepository = screeningRepository;
+        this.bookingRepository = bookingRepository;
         this.movieRepository = movieRepository;
         this.hallRepository = hallRepository;
         this.clock = clock;
@@ -53,7 +57,7 @@ public class ScreeningService {
         return Optional.of(screening);
     }
 
-    public ScreeningResponse addScreening(CreateScreeningRequest request) {
+    public synchronized ScreeningResponse addScreening(CreateScreeningRequest request) {
         if (request == null || request.getHallId() == null
                 || request.getMovieId() == null || request.getStartAt() == null) throw new IllegalArgumentException();
 
@@ -112,7 +116,13 @@ public class ScreeningService {
     public void removeScreening(Long id) {
         if (id == null || id < 1) throw new IllegalArgumentException();
 
-        Screening screening = screeningRepository.getById(id).orElseThrow(() -> new ScreeningNotFoundException(id));
+        Screening screening = screeningRepository.getById(id)
+                .orElseThrow(() -> new ScreeningNotFoundException(id));
+
+        boolean isScreeningPresentInBooking = bookingRepository.getAll()
+                .stream().anyMatch(b -> Objects.equals(b.getScreeningId(), id));
+
+        if (isScreeningPresentInBooking) throw new ScreeningIsPresentInBookingException(id);
 
         screeningRepository.removeScreening(id);
     }

@@ -17,7 +17,7 @@ public class UpdateMovieRequest {
     private String genre;
 
     @Min(30)
-    @Max(30)
+    @Max(300)
     private int durationMinutes;
 
     @Positive

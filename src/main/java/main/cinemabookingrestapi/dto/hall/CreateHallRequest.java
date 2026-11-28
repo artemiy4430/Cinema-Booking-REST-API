@@ -1,5 +1,7 @@
 package main.cinemabookingrestapi.dto.hall;
 
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import main.cinemabookingrestapi.entity.Hall;
@@ -12,10 +14,12 @@ public class CreateHallRequest {
     @NotBlank
     private String name;
 
-    @Size(min = 1, max = 50, message = "рядов должно быть от 1 до 30")
+    @Min(value = 1, message = "рядов должно быть от 1 до 30")
+    @Max(value = 30, message = "рядов должно быть от 1 до 30")
     private int rows;
 
-    @Size(min = 1, max = 50, message = "сидений должно быть от 1 до 30")
+    @Min(value = 1, message = "сидений должно быть от 1 до 30")
+    @Max(value = 30, message = "сидений должно быть от 1 до 30")
     private int seatsPerRows;
 
     public CreateHallRequest(String name, int rows, int seatsPerRows) {

@@ -4,9 +4,12 @@ import main.cinemabookingrestapi.dto.hall.CreateHallRequest;
 import main.cinemabookingrestapi.dto.hall.HallResponse;
 import main.cinemabookingrestapi.dto.hall.UpdateHallRequest;
 import main.cinemabookingrestapi.entity.Hall;
+import main.cinemabookingrestapi.entity.Screening;
 import main.cinemabookingrestapi.exception.alreadyExist.HallNameAlreadyExistsException;
 import main.cinemabookingrestapi.exception.notFound.HallNotFoundException;
+import main.cinemabookingrestapi.exception.isPresentException.HallIsPresentInScreeningException;
 import main.cinemabookingrestapi.repository.HallRepository;
+import main.cinemabookingrestapi.repository.ScreeningRepository;
 import main.cinemabookingrestapi.service.HallService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -15,6 +18,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -28,6 +33,9 @@ public class HallServiceTest {
 
     @Mock
     private HallRepository hallRepository;
+
+    @Mock
+    private ScreeningRepository screeningRepository;
 
     @InjectMocks
     private HallService hallService;
@@ -139,23 +147,26 @@ public class HallServiceTest {
     @Test
     void updateHall_shouldReturnUpdatedHallResponse() {
         Hall existingHall = createHall();
+        existingHall.setId(12L);
         UpdateHallRequest request = new UpdateHallRequest("Gold Hall", 10, 14);
-        Hall updatedHall = new Hall(1L, "Gold Hall", 10, 14, true);
+        Hall updatedHall = new Hall(12L, "Gold Hall", 10, 14, true);
+        List<Screening> screenings = createScreeningList();
 
-        when(hallRepository.getById(1L)).thenReturn(Optional.of(existingHall));
+        when(hallRepository.getById(12L)).thenReturn(Optional.of(existingHall));
+        when(screeningRepository.getAll()).thenReturn(screenings);
         when(hallRepository.getAll()).thenReturn(createList());
-        when(hallRepository.updateHall(eq(1L), any(Hall.class))).thenReturn(Optional.of(updatedHall));
+        when(hallRepository.updateHall(eq(12L), any(Hall.class))).thenReturn(Optional.of(updatedHall));
 
-        HallResponse response = hallService.updateHall(1L, request);
+        HallResponse response = hallService.updateHall(12L, request);
 
         assertNotNull(response);
         assertEquals("Gold Hall", response.getName());
         assertEquals(10, response.getRows());
         assertEquals(14, response.getSeatsPerRows());
 
-        verify(hallRepository).getById(1L);
+        verify(hallRepository).getById(12L);
         verify(hallRepository).getAll();
-        verify(hallRepository).updateHall(eq(1L), any(Hall.class));
+        verify(hallRepository).updateHall(eq(12L), any(Hall.class));
     }
 
     @Test
@@ -174,6 +185,22 @@ public class HallServiceTest {
         assertThrows(HallNotFoundException.class, () -> hallService.updateHall(99L, request));
 
         verify(hallRepository).getById(99L);
+        verify(hallRepository, never()).updateHall(anyLong(), any(Hall.class));
+    }
+
+    @Test
+    void updateHall_shouldThrowHallIsPresentInScreeningException_whenScreeningContainsGivenHall() {
+        Hall hall = createHall();
+        List<Screening> screenings = createScreeningList();
+        UpdateHallRequest request = new UpdateHallRequest("Gold Hall", 10, 14);
+
+        when(hallRepository.getById(1L)).thenReturn(Optional.of(hall));
+        when(screeningRepository.getAll()).thenReturn(screenings);
+
+        assertThrows(HallIsPresentInScreeningException.class, () -> hallService.updateHall(hall.getId(), request));
+
+        verify(hallRepository).getById(1L);
+        verify(screeningRepository).getAll();
         verify(hallRepository, never()).updateHall(anyLong(), any(Hall.class));
     }
 
@@ -270,6 +297,38 @@ public class HallServiceTest {
                         "Purple Hall",
                         9,
                         12,
+                        false
+                )
+        );
+    }
+
+    private List<Screening> createScreeningList() {
+        return List.of(
+                new Screening(
+                        1L,
+                        1L,
+                        1L,
+                        LocalDateTime.of(2026, 11, 26, 14, 0),
+                        LocalDateTime.of(2026, 11, 26, 16, 42),
+                        new BigDecimal("300.00"),
+                        true
+                ),
+                new Screening(
+                        2L,
+                        2L,
+                        2L,
+                        LocalDateTime.of(2026, 11, 16, 18, 0),
+                        LocalDateTime.of(2026, 11, 16, 20, 32),
+                        new BigDecimal("250.00"),
+                        true
+                ),
+                new Screening(
+                        3L,
+                        3L,
+                        3L,
+                        LocalDateTime.of(2026, 11, 8, 12, 0),
+                        LocalDateTime.of(2026, 11, 8, 14, 49),
+                        new BigDecimal("280.00"),
                         false
                 )
         );

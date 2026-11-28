@@ -5,9 +5,12 @@ import main.cinemabookingrestapi.dto.movie.MovieFilterRequest;
 import main.cinemabookingrestapi.dto.movie.MovieResponse;
 import main.cinemabookingrestapi.dto.movie.UpdateMovieRequest;
 import main.cinemabookingrestapi.entity.Movie;
+import main.cinemabookingrestapi.entity.Screening;
 import main.cinemabookingrestapi.exception.alreadyExist.MovieAlreadyExistsException;
+import main.cinemabookingrestapi.exception.isPresentException.MovieIsPresentInScreeningException;
 import main.cinemabookingrestapi.exception.notFound.MovieNotFoundException;
 import main.cinemabookingrestapi.repository.MovieRepository;
+import main.cinemabookingrestapi.repository.ScreeningRepository;
 import main.cinemabookingrestapi.service.MovieService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -16,6 +19,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -28,6 +32,9 @@ public class MovieServiceTest {
 
     @Mock
     private MovieRepository movieRepository;
+
+    @Mock
+    private ScreeningRepository screeningRepository;
 
     @InjectMocks
     private MovieService movieService;
@@ -207,13 +214,16 @@ public class MovieServiceTest {
     @Test
     void removeMovie_shouldRemoveMovie() {
         Movie movie = createMovie();
+        movie.setId(12L);
 
-        when(movieRepository.getById(1L)).thenReturn(Optional.of(movie));
+        when(movieRepository.getById(12L)).thenReturn(Optional.of(movie));
+        when(screeningRepository.getAll()).thenReturn(createScreeningList());
 
-        movieService.removeMovie(1L);
+        movieService.removeMovie(12L);
 
-        verify(movieRepository).getById(1L);
-        verify(movieRepository).removeMovie(1L);
+        verify(movieRepository).getById(12L);
+        verify(screeningRepository).getAll();
+        verify(movieRepository).removeMovie(12L);
     }
 
     @Test
@@ -238,6 +248,19 @@ public class MovieServiceTest {
 
         verify(movieRepository).getById(99L);
         verify(movieRepository, never()).removeMovie(anyLong());
+    }
+
+    @Test
+    void removeMovie_shouldThrowMovieIsPresentInScreeningException_whenGivenMovieIsBeingContainedInExistingScreening() {
+        Movie movie = createMovie();
+
+        when(movieRepository.getById(movie.getId())).thenReturn(Optional.of(movie));
+        when(screeningRepository.getAll()).thenReturn(createScreeningList());
+
+       assertThrows(MovieIsPresentInScreeningException.class, () -> movieService.removeMovie(movie.getId()));
+
+        verify(movieRepository).getById(movie.getId());
+        verify(screeningRepository).getAll();
     }
 
 
@@ -417,4 +440,37 @@ public class MovieServiceTest {
                 )
         );
     }
+
+    private List<Screening> createScreeningList() {
+        return List.of(
+                new Screening(
+                        1L,
+                        1L,
+                        1L,
+                        LocalDateTime.of(2026, 11, 26, 14, 0),
+                        LocalDateTime.of(2026, 11, 26, 16, 42),
+                        new BigDecimal("300.00"),
+                        true
+                ),
+                new Screening(
+                        2L,
+                        2L,
+                        2L,
+                        LocalDateTime.of(2026, 11, 16, 18, 0),
+                        LocalDateTime.of(2026, 11, 16, 20, 32),
+                        new BigDecimal("250.00"),
+                        true
+                ),
+                new Screening(
+                        3L,
+                        3L,
+                        3L,
+                        LocalDateTime.of(2026, 11, 8, 12, 0),
+                        LocalDateTime.of(2026, 11, 8, 14, 49),
+                        new BigDecimal("280.00"),
+                        false
+                )
+        );
+    }
+
 }

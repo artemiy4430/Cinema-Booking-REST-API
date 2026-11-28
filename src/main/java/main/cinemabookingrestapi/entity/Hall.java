@@ -76,20 +76,4 @@ public class Hall extends Entity {
     public int hashCode() {
         return Objects.hash(id, name, rows, seatsPerRow, active);
     }
-
-    public List<String> generateAllSeats() {
-        List<String> allSeats = new ArrayList<>();
-
-        for (int row = 0; row < getRows(); row++) {
-            char rowLetter = (char) ('A' + row);
-
-            for (int seatNum = 1; seatNum <= getSeatsPerRow(); seatNum++) {
-                allSeats.add(rowLetter + String.valueOf(seatNum));
-            }
-        }
-
-        return allSeats;
-    }
-
-
 }
